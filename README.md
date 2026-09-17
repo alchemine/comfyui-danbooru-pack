@@ -95,15 +95,6 @@ The TLS connection is opened to `safebooru.donmai.us`, which shares Danbooru's c
 
 The nodes use plain `requests` (`nodes/danbooru_requests.py`), with no browser dependency. A Playwright-based variant (`nodes/danbooru.py`) is kept in the source tree as an alternative; to use it instead, swap the import in `__init__.py` and `pip install playwright`. It is not a full drop-in: its Popular Posts node has no `offset` parameter (`random=False` returns the top posts re-sorted by score instead of walking the ranking), and it caches every response for the process lifetime with no TTL.
 
-## Tests
-
-The tests call the real Danbooru API, so they need network access (or the Webshare proxy in `.env`). `pytest` is a `test` dependency group in `pyproject.toml`, kept out of `requirements.txt`:
-
-```bash
-uv pip install -r requirements.txt --group test
-pytest tests
-```
-
 ## License
 
 GPL-3.0 — see [LICENSE](LICENSE).

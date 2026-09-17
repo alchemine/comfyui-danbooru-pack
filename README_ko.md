@@ -95,15 +95,6 @@ TLS 연결은 Danbooru와 인증서를 공유하는 `safebooru.donmai.us`로 열
 
 노드는 순수 `requests`(`nodes/danbooru_requests.py`)를 사용하며 브라우저 의존성이 없습니다. Playwright 기반 변형(`nodes/danbooru.py`)도 대체용으로 소스에 남겨두었으며, 그걸 쓰려면 `__init__.py`의 import를 바꾸고 `pip install playwright`를 실행하세요. 완전한 호환은 아닙니다: Popular Posts 노드에 `offset` 파라미터가 없고(`random=False`는 순위를 따라가는 대신 상위 포스트를 score 순으로 재정렬해 반환), 모든 응답을 TTL 없이 프로세스 생존 동안 캐싱합니다.
 
-## 테스트
-
-실제 Danbooru API를 호출하므로 네트워크 접속(또는 `.env`의 Webshare 프록시)이 필요합니다. `pytest`는 `pyproject.toml`의 `test` dependency group에 있고 `requirements.txt`에는 들어가지 않습니다:
-
-```bash
-uv pip install -r requirements.txt --group test
-pytest tests
-```
-
 ## 라이선스
 
 GPL-3.0 — [LICENSE](LICENSE) 참조.
