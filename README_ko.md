@@ -89,6 +89,14 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 
 노드는 순수 `requests`(`nodes/danbooru_requests.py`)를 사용하며 브라우저 의존성이 없습니다. Playwright 기반 변형(`nodes/danbooru.py`)도 대체용으로 소스에 남겨두었으며, 그걸 쓰려면 `__init__.py`의 import를 바꾸고 `pip install playwright`를 실행하세요. 완전한 호환은 아닙니다: Popular Posts 노드에 `offset` 파라미터가 없고(`random=False`는 순위를 따라가는 대신 상위 포스트를 score 순으로 재정렬해 반환), 모든 응답을 TTL 없이 프로세스 생존 동안 캐싱합니다.
 
+## 테스트
+
+HTTP 계층을 가짜로 대체하므로 Danbooru에 접속하지 않고 실행됩니다:
+
+```bash
+uvx --with requests --with python-dotenv pytest tests
+```
+
 ## 라이선스
 
 GPL-3.0 — [LICENSE](LICENSE) 참조.

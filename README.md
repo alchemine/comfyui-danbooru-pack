@@ -89,6 +89,14 @@ Set `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD` in `.env` (see `.env.e
 
 The nodes use plain `requests` (`nodes/danbooru_requests.py`), with no browser dependency. A Playwright-based variant (`nodes/danbooru.py`) is kept in the source tree as an alternative; to use it instead, swap the import in `__init__.py` and `pip install playwright`. It is not a full drop-in: its Popular Posts node has no `offset` parameter (`random=False` returns the top posts re-sorted by score instead of walking the ranking), and it caches every response for the process lifetime with no TTL.
 
+## Tests
+
+The tests fake the HTTP layer, so they run without reaching Danbooru:
+
+```bash
+uvx --with requests --with python-dotenv pytest tests
+```
+
 ## License
 
 GPL-3.0 — see [LICENSE](LICENSE).
