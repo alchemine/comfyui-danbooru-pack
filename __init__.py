@@ -1,6 +1,6 @@
 """Custom nodes mappings."""
 
-from .nodes.danbooru_requests import (
+from .nodes.danbooru import (
     DanbooruRelatedTagsRetriever,
     DanbooruPostTagsRetriever,
     DanbooruPopularPostsTagsRetriever,

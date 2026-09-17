@@ -30,4 +30,4 @@ def nodes(output_dir):
     package = types.ModuleType(PACK_NAME)
     package.__path__ = [str(PACK_DIR)]
     sys.modules[PACK_NAME] = package
-    return importlib.import_module(f"{PACK_NAME}.nodes.danbooru_requests")
+    return importlib.import_module(f"{PACK_NAME}.nodes.danbooru")
