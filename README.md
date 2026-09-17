@@ -89,11 +89,7 @@ Set `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD` in `.env` (see `.env.e
 
 ### Connection host
 
-The TLS connection is opened to `safebooru.donmai.us`, which shares Danbooru's certificate, with the `Host` header on `danbooru.donmai.us`, so the responses are Danbooru's own. Some networks reset every TLS handshake naming `danbooru.donmai.us`; this way the nodes work there too. Image downloads from `cdn.donmai.us` are unaffected. Not done by the Playwright variant.
-
-### Playwright variant
-
-The nodes use plain `requests` (`nodes/danbooru_requests.py`), with no browser dependency. A Playwright-based variant (`nodes/danbooru.py`) is kept in the source tree as an alternative; to use it instead, swap the import in `__init__.py` and `pip install playwright`. It is not a full drop-in: its Popular Posts node has no `offset` parameter (`random=False` returns the top posts re-sorted by score instead of walking the ranking), and it caches every response for the process lifetime with no TTL.
+The TLS connection is opened to `safebooru.donmai.us`, which shares Danbooru's certificate, with the `Host` header on `danbooru.donmai.us`, so the responses are Danbooru's own. Some networks reset every TLS handshake naming `danbooru.donmai.us`; this way the nodes work there too. Image downloads from `cdn.donmai.us` are unaffected.
 
 ## License
 
