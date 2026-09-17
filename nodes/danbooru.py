@@ -18,6 +18,11 @@ from .lib.utils import get_logger, run_async
 
 logger = get_logger()
 
+# The tag inside a weighted form "(tag:1.2)": anything but a bare bracket, with
+# escaped brackets allowed so Danbooru qualifiers survive -- "(ray \(arknights\):1.2)".
+_TAG_BODY = r"(?:\\.|[^()\\])+?"
+
+
 
 #################################################################
 # Base class
@@ -69,26 +74,19 @@ class BaseDanbooru:
             Output: (cat:1.20:1.30)
         """
         tag = tag.strip()
-        if match := re.search(r"^\(([^()]+):([-0-9. ]+)\)$", tag):
-            # Example: (cat:1.20)
-            tag, weight = match.groups()
-        elif match := re.search(r"^\(([^()]+):([0-9. ]+):([0-9. ]+)\)$", tag):
+        if match := re.search(rf"^\(({_TAG_BODY}):([-0-9. ]+):([-0-9. ]+)\)$", tag):
             # Example: (cat:1.20:1.30)
             tag, weight_s, weight_e = match.groups()
+        elif match := re.search(rf"^\(({_TAG_BODY}):([-0-9. ]+)\)$", tag):
+            # Example: (cat:1.20)
+            tag, weight = match.groups()
         elif re.match(r"^[^\(\[]", tag):
             # Example: cat
             pass
-        elif match := re.search(r"^(\(+)(.+)(\)+)$", tag):
-            # Example: (cat), ((cat))
+        elif (match := re.search(r"^(\(+)(.+?)(\)+)$", tag)) or (match := re.search(r"^(\[+)(.+?)(\]+)$", tag)):
+            # Example: ((cat)) / [[cat]] -- non-greedy so the closing brackets are not kept
             tag = match.group(2)
-        elif match := re.search(r"^(\[+)(.+)(\]+)$", tag):
-            # Example: [cat], [[cat]]
-            tag = match.group(2)
-        else:
-            # logger.warning(f"Unexpected tag format: {tag}")
-            pass
         return tag
-
     @staticmethod
     def remove_weight(tag: str) -> str:
         """Remove weight from a tag.
@@ -98,20 +96,11 @@ class BaseDanbooru:
             Output: cat
         """
         tag = tag.strip()
-
-        if match := re.search(r"^\(([^()]+):[0-9.-]+\)$", tag):
-            # Example: (cat:1.20)
+        if (match := re.search(rf"^\(({_TAG_BODY}):[0-9.-]+:[0-9.-]+\)$", tag)) or (match := re.search(rf"^\(({_TAG_BODY}):[0-9.-]+\)$", tag)):
             tag = match.group(1)
-        elif match := re.search(r"^\(([^()]+):[0-9.-]+:[0-9.-]+\)$", tag):
-            # Example: (cat:1.20:1.30)
-            tag = match.group(1)
-        elif match := re.search(r"^([\(\[]+)(.+)([\)\]]+)$", tag):
-            # Example: (cat), ((cat)), [cat], [[cat]]
+        elif match := re.search(r"^([\(\[]+)(.+?)([\)\]]+)$", tag):
             tag = match.group(2)
-        else:
-            pass
         return tag
-
     @staticmethod
     def convert_to_danbooru_tag(tag: str) -> str:
         """Convert a tag to a Danbooru tag.
