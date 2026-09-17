@@ -2,7 +2,7 @@
 
 [English](README.md) | [한국어](README_ko.md)
 
-Danbooru 포스트의 태그를 가져오고 Danbooru 이미지를 다운로드합니다.
+Danbooru 태그 조회기와 포스트 다운로더.
 
 ## 사용법
 

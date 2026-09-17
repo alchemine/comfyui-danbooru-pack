@@ -2,7 +2,7 @@
 
 [English](README.md) | [한국어](README_ko.md)
 
-Retrieves tags from Danbooru posts and downloads Danbooru images.
+Danbooru tag retrievers and posts downloader.
 
 ## Usage
 
