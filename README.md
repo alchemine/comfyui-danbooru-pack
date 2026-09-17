@@ -87,9 +87,9 @@ Outputs are **lists** (one entry per post): `full_tags` / `general_tags` / `char
 
 Set `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD` in `.env` (see `.env.example`) to route the Danbooru nodes through a proxy; leave them unset to connect directly.
 
-### SNI host (optional)
+### Connection host
 
-On a network that resets TLS handshakes for `danbooru.donmai.us` (SNI filtering), set `DANBOORU_SNI_HOST=safebooru.donmai.us` in `.env`. The connection is then opened to that name, which shares Danbooru's certificate, while the `Host` header keeps pointing at `danbooru.donmai.us`, so the responses are Danbooru's own. Image downloads from `cdn.donmai.us` are unaffected. Not supported by the Playwright variant.
+The TLS connection is opened to `safebooru.donmai.us`, which shares Danbooru's certificate, with the `Host` header on `danbooru.donmai.us`, so the responses are Danbooru's own. Some networks reset every TLS handshake naming `danbooru.donmai.us`; this way the nodes work there too. Image downloads from `cdn.donmai.us` are unaffected. Not done by the Playwright variant.
 
 ### Playwright variant
 

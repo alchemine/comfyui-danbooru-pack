@@ -41,6 +41,8 @@ _TAG_BODY = r"(?:\\.|[^()\\])+?"
 VOLATILE_TTL = 3600  # 1 hour
 
 DANBOORU_HOST = "danbooru.donmai.us"
+# The name the TLS connection is opened under; see BaseDanbooru.route().
+CONNECT_HOST = "safebooru.donmai.us"
 
 
 # A single pooled session shared across all Danbooru nodes. A User-Agent is set
@@ -98,18 +100,17 @@ class BaseDanbooru:
     def route(cls, url: str) -> "tuple[str, dict]":
         """Return the URL to connect to and the extra headers for a Danbooru URL.
 
-        With DANBOORU_SNI_HOST set (e.g. `safebooru.donmai.us`), the connection
-        is opened to that host name -- it is what goes into the TLS SNI field and
-        what the certificate is checked against -- while the `Host` header still
-        names danbooru.donmai.us, so Danbooru itself answers. Both names sit on
-        the same Cloudflare certificate. For networks that reset TLS handshakes
-        whose SNI is danbooru.donmai.us. Unset: connect directly, no extra headers.
+        The connection is opened to CONNECT_HOST -- that name goes into the TLS
+        SNI field and is what the certificate is checked against -- while the
+        `Host` header names danbooru.donmai.us, so Danbooru itself answers. Both
+        names sit on the same Cloudflare certificate. Some networks reset every
+        TLS handshake whose SNI is danbooru.donmai.us; this way the nodes work
+        there too, and it costs nothing elsewhere.
         """
-        sni_host = environ.get("DANBOORU_SNI_HOST")
         prefix = f"https://{DANBOORU_HOST}/"
-        if not sni_host or not url.startswith(prefix):
+        if not url.startswith(prefix):
             return url, {}
-        return f"https://{sni_host}/" + url[len(prefix):], {"Host": DANBOORU_HOST}
+        return f"https://{CONNECT_HOST}/" + url[len(prefix):], {"Host": DANBOORU_HOST}
 
     @classmethod
     def _get_json(cls, url: str, ttl: "float | None" = None) -> dict | list:
