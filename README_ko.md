@@ -85,6 +85,10 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 
 `.env`에 `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD`를 넣으면(`.env.example` 참고) Danbooru 노드가 프록시를 경유합니다. 비워 두면 직결합니다.
 
+### SNI 호스트 (선택)
+
+`danbooru.donmai.us`로의 TLS 핸드셰이크가 리셋되는 네트워크(SNI 필터링)에서는 `.env`에 `DANBOORU_SNI_HOST=safebooru.donmai.us`를 넣습니다. 연결은 Danbooru와 인증서를 공유하는 그 이름으로 열리고 `Host` 헤더는 `danbooru.donmai.us`를 유지하므로 응답은 Danbooru 본체의 것입니다. `cdn.donmai.us` 이미지 다운로드는 영향이 없습니다. Playwright 변형은 지원하지 않습니다.
+
 ### Playwright 변형
 
 노드는 순수 `requests`(`nodes/danbooru_requests.py`)를 사용하며 브라우저 의존성이 없습니다. Playwright 기반 변형(`nodes/danbooru.py`)도 대체용으로 소스에 남겨두었으며, 그걸 쓰려면 `__init__.py`의 import를 바꾸고 `pip install playwright`를 실행하세요. 완전한 호환은 아닙니다: Popular Posts 노드에 `offset` 파라미터가 없고(`random=False`는 순위를 따라가는 대신 상위 포스트를 score 순으로 재정렬해 반환), 모든 응답을 TTL 없이 프로세스 생존 동안 캐싱합니다.

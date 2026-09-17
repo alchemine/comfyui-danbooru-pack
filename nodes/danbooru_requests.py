@@ -40,6 +40,8 @@ _TAG_BODY = r"(?:\\.|[^()\\])+?"
 # single post by id) pass no ttl and are cached for the process lifetime.
 VOLATILE_TTL = 3600  # 1 hour
 
+DANBOORU_HOST = "danbooru.donmai.us"
+
 
 # A single pooled session shared across all Danbooru nodes. A User-Agent is set
 # because Danbooru may reject requests without one. No retries: a single failed
@@ -93,6 +95,23 @@ class BaseDanbooru:
         return {"http": proxy_url, "https": proxy_url}
 
     @classmethod
+    def route(cls, url: str) -> "tuple[str, dict]":
+        """Return the URL to connect to and the extra headers for a Danbooru URL.
+
+        With DANBOORU_SNI_HOST set (e.g. `safebooru.donmai.us`), the connection
+        is opened to that host name -- it is what goes into the TLS SNI field and
+        what the certificate is checked against -- while the `Host` header still
+        names danbooru.donmai.us, so Danbooru itself answers. Both names sit on
+        the same Cloudflare certificate. For networks that reset TLS handshakes
+        whose SNI is danbooru.donmai.us. Unset: connect directly, no extra headers.
+        """
+        sni_host = environ.get("DANBOORU_SNI_HOST")
+        prefix = f"https://{DANBOORU_HOST}/"
+        if not sni_host or not url.startswith(prefix):
+            return url, {}
+        return f"https://{sni_host}/" + url[len(prefix):], {"Host": DANBOORU_HOST}
+
+    @classmethod
     def _get_json(cls, url: str, ttl: "float | None" = None) -> dict | list:
         """GET a JSON endpoint with caching (avoids Too Many Requests errors).
 
@@ -108,10 +127,13 @@ class BaseDanbooru:
             expires_at, data = entry
             if expires_at is None or now < expires_at:
                 return data
-        resp = _get_session().get(url, proxies=cls.get_proxies(), timeout=30)
+        connect_url, headers = cls.route(url)
+        resp = _get_session().get(connect_url, headers=headers, proxies=cls.get_proxies(), timeout=30)
         if not resp.ok:
             msg = f"Request to {url} failed with status {resp.status_code}"
-            logger.error(f"{msg}: {resp.text}")
+            # A Cloudflare challenge page is a few KB of HTML; the first line says
+            # enough ("Just a moment...").
+            logger.error(f"{msg}: {resp.text[:200]}")
             raise Exception(msg)
         data = resp.json()
         cls.REQUEST_CACHE[url] = (None if ttl is None else now + ttl, data)

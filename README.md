@@ -85,6 +85,10 @@ Outputs are **lists** (one entry per post): `full_tags` / `general_tags` / `char
 
 Set `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD` in `.env` (see `.env.example`) to route the Danbooru nodes through a proxy; leave them unset to connect directly.
 
+### SNI host (optional)
+
+On a network that resets TLS handshakes for `danbooru.donmai.us` (SNI filtering), set `DANBOORU_SNI_HOST=safebooru.donmai.us` in `.env`. The connection is then opened to that name, which shares Danbooru's certificate, while the `Host` header keeps pointing at `danbooru.donmai.us`, so the responses are Danbooru's own. Image downloads from `cdn.donmai.us` are unaffected. Not supported by the Playwright variant.
+
 ### Playwright variant
 
 The nodes use plain `requests` (`nodes/danbooru_requests.py`), with no browser dependency. A Playwright-based variant (`nodes/danbooru.py`) is kept in the source tree as an alternative; to use it instead, swap the import in `__init__.py` and `pip install playwright`. It is not a full drop-in: its Popular Posts node has no `offset` parameter (`random=False` returns the top posts re-sorted by score instead of walking the ranking), and it caches every response for the process lifetime with no TTL.
