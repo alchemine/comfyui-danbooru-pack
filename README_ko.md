@@ -4,6 +4,17 @@
 
 Danbooru 포스트의 태그를 가져오고 Danbooru 이미지를 다운로드합니다.
 
+## 사용법
+
+**Danbooru Post Tags Retriever**에 포스트 id를 넣으면 카테고리별로 나뉜 태그와 이미지 URL이 나옵니다. **Danbooru Related Tags Retriever**는 태그 하나를 받아 Danbooru가 연관 짓는 태그들을 돌려줍니다. **Danbooru Popular Posts Tags Retriever**는 일간·주간·월간 인기 포스트의 태그를 무작위 표본으로, 또는 순위대로 하나씩 돌려줍니다. **Danbooru Posts Downloader**는 태그 검색 결과의 이미지를 output 폴더에 저장합니다.
+
+> [!NOTE]
+> 요청을 줄이기 위해 응답을 캐싱합니다: 특정 포스트(id 기준)는 프로세스 생존 동안, 가변 엔드포인트(popular / related / search)는 1시간. 과도하게 쓰면 여전히 Danbooru 레이트리밋에 걸릴 수 있습니다. `.env`에 Webshare 프록시를 설정할 수 있습니다([설정](#설정) 참고).
+
+## 예시
+
+![Workflow](workflows/comfyui-danbooru-pack-workflow.png)
+
 ## 설치
 
 ComfyUI Manager에서 **ComfyUI-Danbooru-Pack**을 검색하거나:
@@ -16,18 +27,7 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 
 ## 노드 (`DanbooruPack/Danbooru`)
 
-![Danbooru Workflow](workflows/comfyui-danbooru-pack-workflow.png)
-
-| 노드 | 설명 |
-|------|------|
-| **Danbooru Post Tags Retriever** | 포스트 ID로 특정 Danbooru 포스트의 태그를 가져옵니다. |
-| **Danbooru Related Tags Retriever** | Danbooru에서 빈도/유사도 기반으로 관련 태그를 검색합니다. |
-| **Danbooru Popular Posts Tags Retriever** | 인기 포스트(일간/주간/월간)에서 태그를 가져옵니다. |
-| **Danbooru Posts Downloader** | 검색 태그 기반으로 Danbooru 이미지를 다운로드합니다. |
-
-> ⚠️ **주의:** 요청을 줄이기 위해 응답을 캐싱합니다 — 특정 post(id 기준)는 프로세스 생존 동안, 가변 엔드포인트(popular / related / search)는 1시간 TTL로 캐싱됩니다. 과도하게 쓰면 여전히 Danbooru 레이트리밋에 걸릴 수 있습니다.
-
-#### Danbooru Post Tags Retriever
+### Danbooru Post Tags Retriever
 
 | 파라미터 | 타입 | 설명 |
 |----------|------|------|
@@ -43,7 +43,7 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 | `meta_tags` | 메타 태그만 |
 | `image_url` | 이미지 URL |
 
-#### Danbooru Related Tags Retriever
+### Danbooru Related Tags Retriever
 
 | 파라미터 | 타입 | 기본값 | 설명 |
 |----------|------|--------|------|
@@ -54,7 +54,7 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 | `n_min_tags` | INT | 0 | 반환할 최소 태그 수 |
 | `n_max_tags` | INT | 100 | 반환할 최대 태그 수 |
 
-#### Danbooru Popular Posts Tags Retriever
+### Danbooru Popular Posts Tags Retriever
 
 | 파라미터 | 타입 | 기본값 | 설명 |
 |----------|------|--------|------|
@@ -67,9 +67,10 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 
 출력은 **리스트**(포스트당 한 칸): `full_tags` / `general_tags` / `character_tags` / `copyright_tags` / `artist_tags` / `meta_tags`.
 
-> **팁 — 순위를 하나씩 훑기:** `random=False`, `n=1`, `offset` 컨트롤을 *increment*로 설정. 큐를 누를 때마다 다음 인기글을 반환하며, 그 글이 있는 페이지 1개만 가져옴.
+> [!TIP]
+> 순위를 하나씩 훑으려면 `random=False`, `n=1`, `offset` 컨트롤을 *increment*로 설정. 큐를 누를 때마다 다음 인기글을 반환하며, 그 글이 있는 페이지 1개만 가져옴.
 
-#### Danbooru Posts Downloader
+### Danbooru Posts Downloader
 
 | 파라미터 | 타입 | 기본값 | 설명 |
 |----------|------|--------|------|
@@ -77,7 +78,6 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 | `n` | INT | 1 | 다운로드할 이미지 수 |
 | `dir_path` | STRING | "" | 출력 디렉터리 (ComfyUI output 폴더 기준 상대 경로) |
 | `prefix` | STRING | "" | 파일명 접두사 |
-
 
 ## 설정
 
@@ -87,4 +87,8 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 
 ### Playwright 변형
 
-노드는 순수 `requests`(`nodes/danbooru_requests.py`)를 사용합니다 — 브라우저 의존성 없음. Playwright 기반 변형(`nodes/danbooru.py`)도 대체용으로 소스에 남겨두었으며, 그걸 쓰려면 `__init__.py`의 import를 바꾸고 `pip install playwright`를 실행하세요. 단, 완전한 호환은 아닙니다: Popular Posts 노드에 `offset` 파라미터가 없고(`random=False`는 순위를 따라가는 대신 상위 포스트를 score 순으로 재정렬해 반환), 모든 응답을 TTL 없이 프로세스 생존 동안 캐싱합니다.
+노드는 순수 `requests`(`nodes/danbooru_requests.py`)를 사용하며 브라우저 의존성이 없습니다. Playwright 기반 변형(`nodes/danbooru.py`)도 대체용으로 소스에 남겨두었으며, 그걸 쓰려면 `__init__.py`의 import를 바꾸고 `pip install playwright`를 실행하세요. 완전한 호환은 아닙니다: Popular Posts 노드에 `offset` 파라미터가 없고(`random=False`는 순위를 따라가는 대신 상위 포스트를 score 순으로 재정렬해 반환), 모든 응답을 TTL 없이 프로세스 생존 동안 캐싱합니다.
+
+## 라이선스
+
+GPL-3.0 — [LICENSE](LICENSE) 참조.
