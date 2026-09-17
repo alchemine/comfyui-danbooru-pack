@@ -91,7 +91,7 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 
 ## 테스트
 
-HTTP 계층을 가짜로 대체하므로 Danbooru에 접속하지 않고 실행됩니다. `pytest`는 `pyproject.toml`의 `test` dependency group에 있고 `requirements.txt`에는 들어가지 않습니다:
+실제 Danbooru API를 호출하므로 네트워크 접속(또는 `.env`의 Webshare 프록시)이 필요합니다. `pytest`는 `pyproject.toml`의 `test` dependency group에 있고 `requirements.txt`에는 들어가지 않습니다:
 
 ```bash
 uv pip install -r requirements.txt --group test
