@@ -9,7 +9,11 @@ Retrieves tags from Danbooru posts and downloads Danbooru images.
 Give **Danbooru Post Tags Retriever** a post id and read the tags back split by category, with the image URL. **Danbooru Related Tags Retriever** takes a tag and returns the tags Danbooru relates to it. **Danbooru Popular Posts Tags Retriever** returns the tags of the day's, week's or month's popular posts, either a random sample or one rank at a time. **Danbooru Posts Downloader** saves the images of a tag search into the output folder.
 
 > [!NOTE]
-> Responses are cached to limit requests: a single post (by id) for the process lifetime, the volatile endpoints (popular / related / search) for 1 hour. Heavy use can still hit Danbooru's rate limits. An optional Webshare proxy can be set in `.env` (see [Configuration](#configuration)).
+> Responses are cached to limit requests: a single post (by id) for the process lifetime, the volatile endpoints (popular / related / search) for 1 hour. Heavy use can still hit Danbooru's rate limits.
+
+### Webshare proxy (optional)
+
+Set `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD` in `.env` (see `.env.example`) to route the Danbooru nodes through a proxy; leave them unset to connect directly.
 
 ## Example
 
@@ -82,10 +86,6 @@ Outputs are **lists** (one entry per post): `full_tags` / `general_tags` / `char
 | `prefix` | STRING | "" | Filename prefix |
 
 ## Configuration
-
-### Webshare proxy (optional)
-
-Set `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD` in `.env` (see `.env.example`) to route the Danbooru nodes through a proxy; leave them unset to connect directly.
 
 ### Connection host
 

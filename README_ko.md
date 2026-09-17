@@ -9,7 +9,11 @@ Danbooru 포스트의 태그를 가져오고 Danbooru 이미지를 다운로드�
 **Danbooru Post Tags Retriever**에 포스트 id를 넣으면 카테고리별로 나뉜 태그와 이미지 URL이 나옵니다. **Danbooru Related Tags Retriever**는 태그 하나를 받아 Danbooru가 연관 짓는 태그들을 돌려줍니다. **Danbooru Popular Posts Tags Retriever**는 일간·주간·월간 인기 포스트의 태그를 무작위 표본으로, 또는 순위대로 하나씩 돌려줍니다. **Danbooru Posts Downloader**는 태그 검색 결과의 이미지를 output 폴더에 저장합니다.
 
 > [!NOTE]
-> 요청을 줄이기 위해 응답을 캐싱합니다: 특정 포스트(id 기준)는 프로세스 생존 동안, 가변 엔드포인트(popular / related / search)는 1시간. 과도하게 쓰면 여전히 Danbooru 레이트리밋에 걸릴 수 있습니다. `.env`에 Webshare 프록시를 설정할 수 있습니다([설정](#설정) 참고).
+> 요청을 줄이기 위해 응답을 캐싱합니다: 특정 포스트(id 기준)는 프로세스 생존 동안, 가변 엔드포인트(popular / related / search)는 1시간. 과도하게 쓰면 여전히 Danbooru 레이트리밋에 걸릴 수 있습니다.
+
+### Webshare 프록시 (선택)
+
+`.env`에 `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD`를 넣으면(`.env.example` 참고) Danbooru 노드가 프록시를 경유합니다. 비워 두면 직결합니다.
 
 ## 예시
 
@@ -82,10 +86,6 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 | `prefix` | STRING | "" | 파일명 접두사 |
 
 ## 설정
-
-### Webshare 프록시 (선택)
-
-`.env`에 `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD`를 넣으면(`.env.example` 참고) Danbooru 노드가 프록시를 경유합니다. 비워 두면 직결합니다.
 
 ### 연결 호스트
 
