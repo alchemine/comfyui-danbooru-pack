@@ -1,10 +1,8 @@
 """Utility module for nodes."""
 
 import re
-import asyncio
 import logging
 import tomllib
-import threading
 from pathlib import Path
 from functools import wraps
 
@@ -99,36 +97,3 @@ def exception_handler(func):
 
     return wrapper
 
-
-#################################################################
-# Async utilities
-#################################################################
-def run_async(coro):
-    """Run a coroutine to completion from a sync context.
-
-    - No event loop running in this thread: use ``asyncio.run()`` directly.
-    - A loop is already running (e.g. ComfyUI's async execution): run the
-      coroutine in a separate thread with its own loop, so we neither touch nor
-      block the running loop. This avoids ``nest_asyncio``'s global monkey-patch
-      of the shared event loop.
-    """
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        # No running loop in this thread.
-        return asyncio.run(coro)
-
-    box: dict = {}
-
-    def _runner() -> None:
-        try:
-            box["result"] = asyncio.run(coro)
-        except BaseException as e:  # noqa: BLE001 - re-raised on the caller's thread
-            box["error"] = e
-
-    thread = threading.Thread(target=_runner)
-    thread.start()
-    thread.join()
-    if "error" in box:
-        raise box["error"]
-    return box["result"]

@@ -1,15 +1,4 @@
-"""Nodes in DanbooruPack/Danbooru — `requests`-based implementation.
-
-A drop-in alternative to `danbooru.py` that talks to the Danbooru JSON API with
-plain `requests` instead of Playwright. These nodes never drove a browser — they
-only GET `.json` endpoints (optionally through a Webshare proxy) — so `requests`
-does the same work without the `playwright install` browser dependency.
-
-To use these instead of the Playwright version, swap the import in `__init__.py`:
-    from .nodes.danbooru_requests import (
-        DanbooruRelatedTagsRetriever, ...
-    )
-"""
+"""Nodes in DanbooruPack/Danbooru, on the Danbooru JSON API via `requests`."""
 
 import os
 import re
