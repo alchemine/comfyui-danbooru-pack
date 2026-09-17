@@ -13,6 +13,8 @@ Give **Danbooru Post Tags Retriever** a post id and read the tags back split by 
 
 ## Example
 
+[`workflows/comfyui-danbooru-pack-workflow.json`](workflows/comfyui-danbooru-pack-workflow.json)
+
 ![Workflow](workflows/comfyui-danbooru-pack-workflow.png)
 
 ## Installation

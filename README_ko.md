@@ -13,6 +13,8 @@ Danbooru 포스트의 태그를 가져오고 Danbooru 이미지를 다운로드�
 
 ## 예시
 
+[`workflows/comfyui-danbooru-pack-workflow.json`](workflows/comfyui-danbooru-pack-workflow.json)
+
 ![Workflow](workflows/comfyui-danbooru-pack-workflow.png)
 
 ## 설치
