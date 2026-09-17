@@ -91,10 +91,11 @@ The nodes use plain `requests` (`nodes/danbooru_requests.py`), with no browser d
 
 ## Tests
 
-The tests fake the HTTP layer, so they run without reaching Danbooru:
+The tests fake the HTTP layer, so they run without reaching Danbooru. `pytest` is a `test` dependency group in `pyproject.toml`, kept out of `requirements.txt`:
 
 ```bash
-uvx --with requests --with python-dotenv pytest tests
+uv pip install -r requirements.txt --group test
+pytest tests
 ```
 
 ## License

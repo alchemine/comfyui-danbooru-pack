@@ -18,3 +18,7 @@ PublisherId = "alchemine"
 DisplayName = "ComfyUI-Danbooru-Pack"
 Icon = ""
 
+
+[dependency-groups]
+# `requests` is part of ComfyUI itself, so it is only listed here for the tests.
+test = ["pytest>=8", "requests"]

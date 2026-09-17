@@ -91,10 +91,11 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 
 ## 테스트
 
-HTTP 계층을 가짜로 대체하므로 Danbooru에 접속하지 않고 실행됩니다:
+HTTP 계층을 가짜로 대체하므로 Danbooru에 접속하지 않고 실행됩니다. `pytest`는 `pyproject.toml`의 `test` dependency group에 있고 `requirements.txt`에는 들어가지 않습니다:
 
 ```bash
-uvx --with requests --with python-dotenv pytest tests
+uv pip install -r requirements.txt --group test
+pytest tests
 ```
 
 ## 라이선스
