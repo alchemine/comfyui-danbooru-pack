@@ -23,7 +23,6 @@ logger = get_logger()
 _TAG_BODY = r"(?:\\.|[^()\\])+?"
 
 
-
 # Cache TTL (seconds) for volatile endpoints — popular / related / search,
 # whose response for the same URL changes over time. Immutable endpoints (a
 # single post by id) pass no ttl and are cached for the process lifetime.
@@ -99,7 +98,7 @@ class BaseDanbooru:
         prefix = f"https://{DANBOORU_HOST}/"
         if not url.startswith(prefix):
             return url, {}
-        return f"https://{CONNECT_HOST}/" + url[len(prefix):], {"Host": DANBOORU_HOST}
+        return f"https://{CONNECT_HOST}/" + url[len(prefix) :], {"Host": DANBOORU_HOST}
 
     @classmethod
     def _get_json(cls, url: str, ttl: "float | None" = None) -> dict | list:
@@ -118,7 +117,9 @@ class BaseDanbooru:
             if expires_at is None or now < expires_at:
                 return data
         connect_url, headers = cls.route(url)
-        resp = _get_session().get(connect_url, headers=headers, proxies=cls.get_proxies(), timeout=30)
+        resp = _get_session().get(
+            connect_url, headers=headers, proxies=cls.get_proxies(), timeout=30
+        )
         if not resp.ok:
             msg = f"Request to {url} failed with status {resp.status_code}"
             # A Cloudflare challenge page is a few KB of HTML; the first line says
@@ -149,10 +150,13 @@ class BaseDanbooru:
         elif re.match(r"^[^\(\[]", tag):
             # Example: cat
             pass
-        elif (match := re.search(r"^(\(+)(.+?)(\)+)$", tag)) or (match := re.search(r"^(\[+)(.+?)(\]+)$", tag)):
+        elif (match := re.search(r"^(\(+)(.+?)(\)+)$", tag)) or (
+            match := re.search(r"^(\[+)(.+?)(\]+)$", tag)
+        ):
             # Example: ((cat)) / [[cat]] -- non-greedy so the closing brackets are not kept
             tag = match.group(2)
         return tag
+
     @staticmethod
     def remove_weight(tag: str) -> str:
         """Remove weight from a tag.
@@ -160,11 +164,14 @@ class BaseDanbooru:
         Example: (cat:1.20) -> cat
         """
         tag = tag.strip()
-        if (match := re.search(rf"^\(({_TAG_BODY}):[0-9.-]+:[0-9.-]+\)$", tag)) or (match := re.search(rf"^\(({_TAG_BODY}):[0-9.-]+\)$", tag)):
+        if (match := re.search(rf"^\(({_TAG_BODY}):[0-9.-]+:[0-9.-]+\)$", tag)) or (
+            match := re.search(rf"^\(({_TAG_BODY}):[0-9.-]+\)$", tag)
+        ):
             tag = match.group(1)
         elif match := re.search(r"^([\(\[]+)(.+?)([\)\]]+)$", tag):
             tag = match.group(2)
         return tag
+
     @staticmethod
     def convert_to_danbooru_tag(tag: str) -> str:
         """Convert a tag to a Danbooru tag (spaces->underscores, unescape parens)."""
