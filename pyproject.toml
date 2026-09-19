@@ -2,12 +2,9 @@
 name = "comfyui-danbooru-pack"
 description = """Danbooru tag retrievers and posts downloader"""
 
-version = "1.0.0"
+version = "1.0.1"
 license = { file = "LICENSE" }
 requires-python = ">=3.12"
-dependencies = [
-    "python-dotenv>=1.0.0",
-]
 
 [project.urls]
 Repository = "https://github.com/alchemine/comfyui-danbooru-pack"
@@ -18,7 +15,19 @@ PublisherId = "alchemine"
 DisplayName = "ComfyUI-Danbooru-Pack"
 Icon = ""
 
+[tool.ruff]
+lint.select = [
+  "N805", # invalid-first-argument-name-for-method
+  "S307", # suspicious-eval-usage
+  "S102", # exec
+  "E",
+  "T",    # print-usage
+  "W",
+  # The "F" series in Ruff stands for "Pyflakes" rules, which catch various Python syntax errors and undefined names.
+  # See all rules here: https://docs.astral.sh/ruff/rules/#pyflakes-f
+  "F",
+]
 
-[dependency-groups]
-# `requests` is part of ComfyUI itself, so it is only listed here for the tests.
-test = ["pytest>=8", "requests"]
+lint.ignore = ["E501", "E722", "E731", "E712", "E402", "E741"]
+
+exclude = ["*.ipynb"]
