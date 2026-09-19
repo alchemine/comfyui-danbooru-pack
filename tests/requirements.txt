@@ -1,0 +1,3 @@
+# `requests` is part of ComfyUI itself, so it is only listed here for the tests.
+pytest>=8
+requests
