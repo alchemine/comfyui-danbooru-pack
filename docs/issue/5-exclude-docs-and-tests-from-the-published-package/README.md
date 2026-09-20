@@ -29,7 +29,7 @@ uv pip install --python .venv/bin/python -r requirements.txt -r tests/requiremen
 ```
 
 ## 테스트 결과
-| | 수정 전 (`17084d6`) |
-|---|---|
-| 배포 zip | 파일 23개 가운데 `docs/` 1개, `tests/` 5개 |
-| pytest | 1 failed, 1 passed |
+| | 수정 전 (`17084d6`) | 수정 후 |
+|---|---|---|
+| 배포 zip | 파일 23개 가운데 `docs/` 1개, `tests/` 5개 | 파일 17개, `docs/`와 `tests/`는 0개 |
+| pytest | 1 failed, 1 passed | 2 passed |
