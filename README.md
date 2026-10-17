@@ -11,6 +11,10 @@ Give **Danbooru Post Tags Retriever** a post id and read the tags back split by 
 > [!NOTE]
 > Responses are cached to limit requests: a single post (by id) for the process lifetime, the volatile endpoints (popular / related / search) for 1 hour. Heavy use can still hit Danbooru's rate limits.
 
+### Danbooru login (optional)
+
+Set `DANBOORU_LOGIN` / `DANBOORU_API_KEY` in `.env` (profile page > API Key) and every API request is sent with HTTP Basic auth, so the account's limits apply: a Gold account can search up to 6 tags at once, anonymous and Member accounts only 2. Image downloads from `cdn.donmai.us` need no login.
+
 ### Webshare proxy (optional)
 
 Set `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD` in `.env` (see `.env.example`) to route the Danbooru nodes through a proxy; leave them unset to connect directly.
@@ -81,9 +85,9 @@ Outputs are **lists** (one entry per post): `full_tags` / `general_tags` / `char
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `tags` | STRING | "" | Search tags |
-| `n` | INT | 1 | Number of images to download |
+| `n` | INT | 1 | Number of images to download; posts the API returns without a file (banned or deleted) are skipped and the next results are taken instead |
 | `dir_path` | STRING | "" | Output directory (relative to ComfyUI output folder) |
-| `prefix` | STRING | "" | Filename prefix |
+| `prefix` | STRING | "" | Filename prefix; files are named `<prefix>_<post id>.<ext>`, so a post already in the folder is not downloaded again |
 
 ## Configuration
 
