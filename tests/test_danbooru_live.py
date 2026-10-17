@@ -57,10 +57,26 @@ def test_posts_downloader(nodes, output_dir):
     (paths,) = nodes.DanbooruPostsDownloader.execute(
         tags=f"id:{POST_ID}", n=1, dir_path="dl", prefix="p"
     )
-    assert paths == ["dl/p_1.jpg"] or (
-        len(paths) == 1 and paths[0].startswith("dl/p_1.")
-    )
+    assert len(paths) == 1 and paths[0].startswith(f"dl/p_{POST_ID}.")
     assert (output_dir / paths[0]).stat().st_size > 0
+
+
+def test_posts_downloader_skips_a_post_already_in_the_folder(
+    nodes, output_dir, monkeypatch
+):
+    (paths,) = nodes.DanbooruPostsDownloader.execute(
+        tags=f"id:{POST_ID}", n=1, dir_path="dl", prefix="p"
+    )
+    before = (output_dir / paths[0]).stat().st_mtime
+    monkeypatch.setattr(
+        nodes._get_session(),
+        "get",
+        lambda *a, **k: (_ for _ in ()).throw(AssertionError("downloaded again")),
+    )
+    (again,) = nodes.DanbooruPostsDownloader.execute(
+        tags=f"id:{POST_ID}", n=1, dir_path="dl", prefix="p"
+    )
+    assert again == paths and (output_dir / paths[0]).stat().st_mtime == before
 
 
 def test_cache_serves_the_second_call_without_a_request(nodes, monkeypatch):
@@ -73,3 +89,17 @@ def test_cache_serves_the_second_call_without_a_request(nodes, monkeypatch):
 
     monkeypatch.setattr(session, "get", boom)
     assert nodes.BaseDanbooru._get_json(url)["id"] == int(POST_ID)
+
+
+# https://danbooru.donmai.us/posts/6786886 -- banned, so the API returns it without file_url.
+BANNED_POST_ID = "6786886"
+
+
+def test_posts_request_skips_posts_without_file_url(nodes):
+    datas = nodes.DanbooruPostsDownloader.request(f"id:{BANNED_POST_ID},1,2", n=2)
+    assert [d["id"] for d in datas] == [2, 1]
+    assert all(d["file_url"] for d in datas)
+
+
+def test_posts_request_stops_when_the_search_runs_out(nodes):
+    assert nodes.DanbooruPostsDownloader.request(f"id:{BANNED_POST_ID}", n=1) == []

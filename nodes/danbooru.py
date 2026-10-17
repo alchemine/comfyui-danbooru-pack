@@ -4,7 +4,6 @@ import os
 import re
 import time
 from os import environ
-from math import ceil
 from pathlib import Path
 from random import Random
 from collections import defaultdict
@@ -85,6 +84,19 @@ class BaseDanbooru:
         return {"http": proxy_url, "https": proxy_url}
 
     @classmethod
+    def get_auth(cls) -> "tuple[str, str] | None":
+        """(login, api_key) for HTTP Basic auth from env, or None if not set.
+
+        Logged-in requests get the account's limits: Gold accounts may search
+        up to 6 tags at once, anonymous and Member accounts only 2.
+        """
+        login = environ.get("DANBOORU_LOGIN")
+        api_key = environ.get("DANBOORU_API_KEY")
+        if not login or not api_key:
+            return None
+        return (login, api_key)
+
+    @classmethod
     def route(cls, url: str) -> "tuple[str, dict]":
         """Return the URL to connect to and the extra headers for a Danbooru URL.
 
@@ -118,7 +130,11 @@ class BaseDanbooru:
                 return data
         connect_url, headers = cls.route(url)
         resp = _get_session().get(
-            connect_url, headers=headers, proxies=cls.get_proxies(), timeout=30
+            connect_url,
+            headers=headers,
+            proxies=cls.get_proxies(),
+            auth=cls.get_auth(),
+            timeout=30,
         )
         if not resp.ok:
             msg = f"Request to {url} failed with status {resp.status_code}"
@@ -502,8 +518,6 @@ class DanbooruPopularPostsTagsRetriever(BaseDanbooru):
 class DanbooruPostsDownloader(BaseDanbooru):
     """Download posts from Danbooru."""
 
-    N_POSTS_PER_PAGE = 20  # Danbooru API default limit
-
     INPUT_TYPES = lambda: {
         "required": {
             "tags": ("STRING", {"default": ""}),
@@ -531,33 +545,20 @@ class DanbooruPostsDownloader(BaseDanbooru):
             os.makedirs(dir_path_obj, exist_ok=True)
 
         datas = cls.request(tags, n)
-
-        if prefix:
-            start_idx = 1 + len(list(dir_path_obj.glob(f"{prefix}_*.*")))
-        else:
-            idxs = set()
-            for f in dir_path_obj.glob("[0-9]*.*"):
-                try:
-                    idx_val = int(f.stem.split("_")[0])
-                    idxs.add(idx_val)
-                except (ValueError, IndexError):
-                    continue
-            start_idx = (max(idxs) + 1) if idxs else 1
-        idx = start_idx
-
         session = _get_session()
         proxies = cls.get_proxies()
-
         file_paths = []
         for data in datas:
-            if not data.get("file_url"):
-                continue
-
             file_url = data["file_url"]
             extension = splitext(file_url.split("?")[0])[-1]
-            file_name = f"{prefix}_{idx}{extension}" if prefix else f"{idx}{extension}"
+            # Named by post id, so the same post always lands on the same file and is
+            # not downloaded twice.
+            file_name = (
+                f"{prefix}_{data['id']}{extension}"
+                if prefix
+                else f"{data['id']}{extension}"
+            )
             file_path = dir_path_obj / file_name
-
             if not file_path.exists():
                 try:
                     resp = session.get(file_url, proxies=proxies, timeout=120)
@@ -569,24 +570,26 @@ class DanbooruPostsDownloader(BaseDanbooru):
                 except Exception as e:
                     logger.exception(f"Failed to download {file_url}: {e}")
                     continue
-
             file_paths.append(relpath(file_path, output_dir))
-            idx += 1
-
         return (file_paths,)
 
     @classmethod
     def request(cls, tags: str, n: int) -> list[dict]:
-        """Request the Danbooru posts API."""
-        params = {"tags": tags}
-        n_pages = ceil(n / cls.N_POSTS_PER_PAGE)
+        """Request the Danbooru posts API until n downloadable posts are collected.
 
+        Banned or deleted posts come back without `file_url`; they are skipped and
+        the next page is fetched in their place, so the caller gets n posts unless
+        the search runs out.
+        """
         datas = []
-        for page in range(1, 1 + n_pages):
-            params["page"] = page
-            params_str = "&".join([f"{k}={v}" for k, v in params.items()])
-            url = f"https://danbooru.donmai.us/posts.json?{params_str}"
-            datas.extend(cls._get_json(url, ttl=VOLATILE_TTL))
+        page = 1
+        while len(datas) < n:
+            url = f"https://danbooru.donmai.us/posts.json?tags={tags}&page={page}"
+            page_datas = cls._get_json(url, ttl=VOLATILE_TTL)
+            if not page_datas:
+                break
+            datas.extend(data for data in page_datas if data.get("file_url"))
+            page += 1
         return datas[:n]
 
     @classmethod
