@@ -11,6 +11,10 @@ Danbooru 태그 조회기와 포스트 다운로더.
 > [!NOTE]
 > 요청을 줄이기 위해 응답을 캐싱합니다: 특정 포스트(id 기준)는 프로세스 생존 동안, 가변 엔드포인트(popular / related / search)는 1시간. 과도하게 쓰면 여전히 Danbooru 레이트리밋에 걸릴 수 있습니다.
 
+### Danbooru 로그인 (선택)
+
+`.env`에 `DANBOORU_LOGIN` / `DANBOORU_API_KEY`(프로필 페이지 > API Key)를 넣으면 모든 API 요청에 HTTP Basic 인증이 붙어 계정의 한도가 적용됩니다. Gold 계정은 태그 6개까지, 익명과 Member는 2개까지 검색할 수 있습니다. `cdn.donmai.us` 이미지 다운로드에는 로그인이 필요 없습니다.
+
 ### Webshare 프록시 (선택)
 
 `.env`에 `WEBSHARE_PROXY_USERNAME` / `WEBSHARE_PROXY_PASSWORD`를 넣으면(`.env.example` 참고) Danbooru 노드가 프록시를 경유합니다. 비워 두면 직결합니다.
@@ -81,9 +85,9 @@ pip install -r comfyui-danbooru-pack/requirements.txt
 | 파라미터 | 타입 | 기본값 | 설명 |
 |----------|------|--------|------|
 | `tags` | STRING | "" | 검색 태그 |
-| `n` | INT | 1 | 다운로드할 이미지 수 |
+| `n` | INT | 1 | 다운로드할 이미지 수. API가 파일 없이 돌려주는 포스트(차단·삭제)는 건너뛰고 다음 결과로 채움 |
 | `dir_path` | STRING | "" | 출력 디렉터리 (ComfyUI output 폴더 기준 상대 경로) |
-| `prefix` | STRING | "" | 파일명 접두사 |
+| `prefix` | STRING | "" | 파일명 접두사. 파일은 `<prefix>_<포스트 id>.<확장자>`로 저장되고, 이미 있는 포스트는 다시 받지 않음 |
 
 ## 설정
 
